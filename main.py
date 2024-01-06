@@ -53,7 +53,7 @@ def display_soil_data(soil_data):
     print("SOIL DATA: ")
     print("Northing Easting Elevation(m)")
     for row  in soil_data:
-        print("%-3d %=14s")
+        print("%-9d %-9d %-3d" % (row[0], row[1], row[2]))
 
 main()
 
