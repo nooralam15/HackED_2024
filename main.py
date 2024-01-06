@@ -1,6 +1,5 @@
-print("hello")
-print("This")
-choice = input(num("what is code:"))
-print("This")
+#Main code file for the Earthwork Cost and Bid estimation tool
 
-name = 23
+#Main Function that will loop through the code
+def main():
+    print("Hello, welcome to ")
