@@ -36,7 +36,7 @@ def load_soil_data_from_csv(file_path):
         print("Error: No soil data file was submitted.")
         print("")
         return np.array([])
-    
+
 #This function will create a menu that will loop through the code
 def menu():
     print("Welcome to Earth 2 Build, a premium cost and biddding estimation tool for Engineering EarthWork")
@@ -59,28 +59,33 @@ def soil_data_limit(soil_data):
     print("Max Elevation:", max_elevation)
 
     # Handle input for the limit value with proper error checking
-    while True:
-        limit_value_str = input("Base Elevation? ")
+    valid=True
+    while valid:
+        limit_value = float(input("Base Elevation Limit Value? "))
         try:
-            limit_value = float(limit_value_str)
-            if min_elevation <= limit_value <= max_elevation:
-                break  # Exit the loop if a valid float is entered within the range
+            if min_elevation <= limit_value and limit_value <= max_elevation:
+                valid = False  # Exit the loop if a valid float is entered within the range
             else:
                 print("Invalid input. Base Elevation must be within the range.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
 
-    soil_data_copy = soil_data.copy()  # Create a copy to iterate over
-    for entry in soil_data_copy:
-        if entry[2] > limit_value:  # Assuming the third column represents elevation
-            soil_data.remove(entry)
+    p = 0
+    while p < len(soil_data):
+        if soil_data[p][2] > limit_value:  # Assuming the third column represents elevation
+            del soil_data[p]
+        else:
+            p = p + 1
+
+    print("Soil data filtered based on Base Elevation Limit.")
+    print("")
+    return soil_data
 
 def soil_data_min_max(soil_data):
     elevations = [entry[2] for entry in soil_data]  # Assuming the third column represents elevation
     min_elevation = min(elevations)
     max_elevation = max(elevations)
     return min_elevation, max_elevation
-    
 
 def display_soil_data(soil_data):
     print("")
@@ -122,7 +127,3 @@ def plot_soil_profile(data):
     plt.show()
 
 main()
-
-
-
-
