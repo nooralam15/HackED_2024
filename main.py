@@ -98,10 +98,13 @@ def display_soil_data(soil_data):
 #This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
     #Seperates data points into Northing, Easting, and Elevations
+    northing, easting, elevation = [], [], []
     for k in range(0, len(data)):
-        northing = data[k][0]
-        easting = data[k][1]
-        elevation = data[k][2]
+        northing.append(data[k][0])
+        easting.append(data[k][1])
+        elevation.append(data[k][2])
+    
+    print(len(northing))
 
     # Creating a meshgrid for the contour plot
     x = np.array(northing)
