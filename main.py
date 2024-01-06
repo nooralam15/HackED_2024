@@ -54,7 +54,7 @@ def display_soil_data(soil_data):
     print("SOIL DATA:")
     print("%-9.9s  %-9.9s  %-15.15s" % ("Northing", "Easting", "Elevation(m)"))
     
-    for k in range(0, len(soil_data)):
+    for k in range(1, len(soil_data)):
         northing = soil_data[k][0]
         easting = soil_data[k][1]
         elevation = soil_data[k][2]
