@@ -1,5 +1,12 @@
-#Main code file for the Earthwork Cost and Bid estimation tool
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt 
 
-#Main Function that will loop through the code
 def main():
-    print("Hello, welcome to ")
+    #load soil data from CSV file
+    soil_data = load_soil_data_from_csv("soil_data.csv")
+
+    #display information about the soil data
+    display_soil_info()
+
+    choice = menu()
