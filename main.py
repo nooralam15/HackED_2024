@@ -14,6 +14,7 @@ def main():
     #display_soil_info()
 
     userInput = menu()
+
     while userInput != 0:
         if userInput == 1:
             display_soil_data(soil_data)
@@ -45,24 +46,48 @@ def menu():
     print("3. Plot Soil Profile")
     print()
     
-    userInput = int(input("userInput (0-3)?"))
+    userInput = int(input("userInput (0-3)? "))
     while not (0 <= userInput <=3):
-        userInput = int(input("userInput (0-3)?"))
+        userInput = int(input("userInput (0-3)? "))
     return userInput
 
 #This function will display the soil data points from the csv file
 def display_soil_data(soil_data):
     print("")
-    print("SOIL DATA: ")
-    print("Northing Easting Elevation(m)")
-    for row  in soil_data:
-        print("%-8d %-8d %-4d" % (row[0], row[1], row[2]))
+    print("SOIL DATA:")
+    print("%-9.9s  %-9.9s  %-15.15s" % ("Northing", "Easting", "Elevation(m)"))
+    
+    #Seperates data points into Northing, Easting, and Elevations
+    for k in range(0, len(soil_data)):
+        northing = soil_data[k][0]
+        easting = soil_data[k][1]
+        elevation = soil_data[k][2]
+        
+        print("%-7.1d  %-7.1d  %-6d" % (northing, easting, elevation))
 
 #This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
+    #Seperates data points into Northing, Easting, and Elevations
+    for k in range(0, len(data)):
+        northing = data[k][0]
+        easting = data[k][1]
+        elevation = data[k][2]
     
+    X, Y = np.meshgrid(northing, easting)
+    Z = np.array(elevation).reshape(len(y), len(x))
 
+    X = northing.unique()
+    Y = easting.unique()
+    Z = elevation.values.reshape(len(X), len(Y)).T
 
+    plt.figure(figsize=(8, 6))
+    contour_plot = plt.tricontourf(X, Y, Z, levels=20, cmap='viridis')
+    plt.colorbar(contour_plot, label='Elevation')  # Add a colorbar for reference
+    plt.xlabel('Northing')
+    plt.ylabel('Easting')
+    plt.title('2D Contour Map')
+    plt.grid(True)
+    plt.show()
 
 main()
 
