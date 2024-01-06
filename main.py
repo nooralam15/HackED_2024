@@ -4,6 +4,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
+from mpl_toolkits.mplot3d import Axes3D
 
 def main():
     #load soil data from CSV file
@@ -15,12 +16,13 @@ def main():
     userInput = menu()
     while userInput != 0:
         if userInput == 1:
-            display_soil_info(soil_data)
+            display_soil_data(soil_data)
         elif userInput == 2:
             estimate_excavation_cost(soil_data)
         elif userInput == 3:
             plot_soil_profile(soil_data)
 
+#This function initializes the csv file for later use in future functions
 def load_soil_data_from_csv(file_path):
     # loads soil data from a csv file 
     try:
@@ -48,12 +50,19 @@ def menu():
         userInput = int(input("userInput (0-3)?"))
     return userInput
 
+#This function will display the soil data points from the csv file
 def display_soil_data(soil_data):
     print("")
     print("SOIL DATA: ")
     print("Northing Easting Elevation(m)")
     for row  in soil_data:
         print("%-8d %-8d %-4d" % (row[0], row[1], row[2]))
+
+#This function will plot the csv soil data as a contour map
+def plot_soil_profile(data):
+    
+
+
 
 main()
 
