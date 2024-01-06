@@ -48,9 +48,9 @@ def menu():
     print("4. Plot Soil Profile")
     print()
     
-    userInput = int(input("userInput (0-3)? "))
-    while not (0 <= userInput <=3):
-        userInput = int(input("userInput (0-3)? "))
+    userInput = int(input("userInput (0-4)? "))
+    while not (0 <= userInput <=4):
+        userInput = int(input("userInput (0-4)? "))
     return userInput
 
 #This function will display the soil data points from the csv file
