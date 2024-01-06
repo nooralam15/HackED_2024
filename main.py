@@ -20,3 +20,15 @@ def main():
             plot_soil_profile(soil_data)
 
         choice = menu()
+
+def load_soil_data_from_csv(file_path):
+    # loads soil data from a csv file 
+    try:
+        soil_data = pd.read_csv(file_path)
+        return soil_data.values
+        # convert DataFrame to NumPy Array
+    except FileNotFoundError:
+        print("")
+        print("Error: No soil data file was submitted.")
+        print("")
+        return np.array([])
