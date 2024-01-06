@@ -53,28 +53,34 @@ def menu():
         userInput = int(input("userInput (0-4)? "))
     return userInput
 
-#This function will display the soil data points from the csv file
 def soil_data_limit(soil_data):
     min_elevation, max_elevation = soil_data_min_max(soil_data)
     print("Min Elevation:", min_elevation)
     print("Max Elevation:", max_elevation)
-    limit_value = float(input("Limit Value? "))
-    
-    while not (min_elevation <= limit_value <= max_elevation):
-        limit_value = float(input("Limit Value? "))
-    
-    p = 1
-    while p < len(soil_data):
-        if soil_data[p][2] > limit_value:  # Assuming the third column represents elevation
-            del soil_data[p]
-        else:
-            p += 1
+
+    # Handle input for the limit value with proper error checking
+    while True:
+        limit_value_str = input("Base Elevation? ")
+        try:
+            limit_value = float(limit_value_str)
+            if min_elevation <= limit_value <= max_elevation:
+                break  # Exit the loop if a valid float is entered within the range
+            else:
+                print("Invalid input. Base Elevation must be within the range.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    soil_data_copy = soil_data.copy()  # Create a copy to iterate over
+    for entry in soil_data_copy:
+        if entry[2] > limit_value:  # Assuming the third column represents elevation
+            soil_data.remove(entry)
 
 def soil_data_min_max(soil_data):
     elevations = [entry[2] for entry in soil_data]  # Assuming the third column represents elevation
     min_elevation = min(elevations)
     max_elevation = max(elevations)
-    return min_elevation, max_elevation    
+    return min_elevation, max_elevation
+    
 
 def display_soil_data(soil_data):
     print("")
