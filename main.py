@@ -3,4 +3,4 @@ print("This")
 choice = input(num("what is code:"))
 print("This")
 
-"this is me"
+name = 23
