@@ -15,7 +15,7 @@ def main():
     userInput = menu()
 
     while userInput != 0:
-        if userInput ==1:
+        if userInput == 1:
             soil_data_limit(soil_data)
         elif userInput == 2:
             display_soil_data(soil_data)
