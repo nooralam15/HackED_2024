@@ -167,4 +167,7 @@ def plot_soil_profile(data):
     plt.grid(True)
     plt.show()
 
+#This function will estimate excavation costs
+def estimate_excavation_cost(data):
+    print("HI")
 main()
