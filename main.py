@@ -1,10 +1,14 @@
 #Main code for the Earthwork Cost and Bid Estimation
 
 #Import main library
+from openai import OpenAI
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
+from keys import *
+
+client = OpenAI(api_key = chatGPT_Key)
 
 def main():
     #load soil data from CSV file
@@ -106,33 +110,31 @@ def display_soil_data(soil_data):
 
 # calculates the cut and fill needed for earthwork
 def estimate_excavation_cost(soil_data, base_elevation, base_foundation):
-    # Constants
-    ROCK_CUT_FACTOR = 0.1  # Example factor for bedrock cut volume
-    CONCRETE_BACKFILL_FACTOR = 0.2  # Example factor for backfilling after concrete pour
-
-    # Initialize volumes
-    cut_volume = 0
-    bedrock_volume = 0
-    soil_excavation_volume = 0
-    footing_volume = 0
-    backfilling_volume = 0
-    slab_volume = 0
-
-    # Example usage
-    base_elevation_input = float(input("Enter the base elevation: "))
-    base_foundation_input = float(input("Enter the base foundation: "))
-    estimate_excavation_cost(soil_data, base_elevation_input, base_foundation_input)
     
-    # Calculate volumes based on soil_data
+    # Get user input for elevation values
+    min_elevation, max_elevation = soil_data_min_max(soil_data)
+    print("Min Elevation:", min_elevation)
+    print("Max Elevation:", max_elevation)
+
+    while True:
+        try:
+            base_elevation = float(input("Enter Base Footing Elevation: "))
+            if min_elevation <= base_elevation and base_elevation <= max_elevation:
+                break
+            else:
+                print("Invalid input. Elevation must be within the range.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    # Calculate cut and fill volumes
+    cut_volume = 0
+    fill_volume = 0 
     for entry in soil_data:
-        northing, easting, elevation = entry
+        elevation = entry[2]  # Assuming the third column represents elevation
         if elevation < base_elevation:
-            # Below the base elevation, consider cut
             cut_volume += base_elevation - elevation
-            bedrock_volume += ROCK_CUT_FACTOR * (base_elevation - elevation)
         elif elevation > base_elevation:
-            # Above the base elevation, consider fill
-            backfilling_volume += CONCRETE_BACKFILL_FACTOR * (elevation - base_elevation)
+            fill_volume += elevation - base_elevation
 
     # Calculate final volumes
     total_cut_volume = cut_volume + bedrock_volume
