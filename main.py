@@ -38,7 +38,7 @@ print(formatted_text)
 def main():
     # Load and display the image
     display_image("earth2build.png")
-    
+
     print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
     while True:
         # Get user input for soil data file
@@ -62,7 +62,7 @@ def main():
         userInput = menu()
         if userInput == 0:
             print("Exiting program... Thanks for using Earth-2-Build!")
-            return
+            break  # Exit the outer loop, ending the program
         elif userInput == 1:
             soil_data = soil_data_limit(soil_data)
         elif userInput == 2:
@@ -72,7 +72,7 @@ def main():
         elif userInput == 4:
             # Restart the program
             print("Restarting the program...\n")
-            break
+            soil_data = load_soil_data_from_csv(soil_data_file_path)
 
 # Add this function to display the image
 def display_image(image_path):
