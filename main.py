@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from keys import *
 import matplotlib.image as mpimg
+from tabulate import tabulate
 
 client = OpenAI(api_key = chatGPT_Key)
 
@@ -15,13 +16,10 @@ def main():
     #load soil data from CSV file
     soil_data = load_soil_data_from_csv("soil_data.csv")
 
-    #display information about the soil data
-    #display_soil_info()
-
     # Load and display the image
-    image_path = r"C:\Users\ikasa\Downloads\earth2build.png"
-    display_image(image_path)
+    display_image("earth2build.png")
 
+    print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
     userInput = menu()
 
     while userInput != 0:
@@ -54,7 +52,7 @@ def load_soil_data_from_csv(file_path):
 
 #This function will create a menu that will loop through the code
 def menu():
-    print("\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork. \n")
+    print("\nMAIN MENU")
     print("0. Exit Program")
     print("1. Maximum Elevation Limit")
     print("2. Updated Soil Data")
@@ -124,7 +122,7 @@ def estimate_excavation_cost(soil_data):
 
     while True:
         try:
-            base_elevation = float(input("\nEnter Base Footing Elevation(m): "))
+            base_elevation = float(input("\nEnter Base Foundation Elevation(m): "))
             if min_elevation <= base_elevation <= max_elevation:
                 break
             else:
@@ -135,45 +133,61 @@ def estimate_excavation_cost(soil_data):
     # Conversion factor: Assuming each data point represents a square meter
     conversion_factor = 1.2
 
+    # Next 2 while loops obtains information regarding footing and slab volume
     while True:
         units_from_revit = input("\nAre Footing Volume units from Revit in Yards? (y/n): ").lower()
         if units_from_revit == 'y':
-            CuY_to_CuM = float(input("Enter Footing Volume: "))
-            print("Converting units from Yards to Meters...")
-            CuY_to_CuM_conversion = 0.764555
-            footing_volume = CuY_to_CuM * CuY_to_CuM_conversion
-            print(f"Conversion complete! Footing Volume in Cu. M is: {footing_volume:.2f} Cu. M")
-            break
-        else:  
+            try:
+                CuY_to_CuM = float(input("Enter Footing Volume: "))
+                if 0 <= CuY_to_CuM:
+                    print("Converting units from Yards to Meters...")
+                    CuY_to_CuM_conversion = 0.764555
+                    footing_volume = CuY_to_CuM * CuY_to_CuM_conversion
+                    print(f"Conversion complete! Footing Volume in Cu. M is: {footing_volume:.2f} Cu. M")
+                    break
+                else:
+                    print("Invalid input. Volume must be non-negative.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+        elif units_from_revit == 'n':
             try:
                 footing_volume = float(input("\nEnter Footing Volume (Cu. M): "))
                 if 0 <= footing_volume:
                     break
                 else:
-                    print("Invalid input. Elevation must be within the range.")
+                    print("Invalid input. Volume must be non-negative.")
             except ValueError:
                 print("Invalid input. Please enter a valid number.")
-
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+    
     while True:
         units_from_revit = input("\nAre Slab Volume units from Revit in Yards? (y/n): ").lower()
         if units_from_revit == 'y':
-            CuY_to_CuM = float(input("Enter Slab Volume: "))
-            print("Converting units from Yards to Meters...")
-            CuY_to_CuM_conversion = 0.764555
-            slab_volume = CuY_to_CuM * CuY_to_CuM_conversion
-            print(f"\nConversion complete! Slab Volume in Cu. M is: {slab_volume:.2f} Cu. M \n")
-            break
-
-        else:  
             try:
-                slab_volume = float(input("\nEnter Footing Volume (Cu. M): "))
+                CuY_to_CuM = float(input("Enter Slab Volume: "))
+                if 0 <= CuY_to_CuM:
+                    print("Converting units from Yards to Meters...")
+                    CuY_to_CuM_conversion = 0.764555
+                    slab_volume = CuY_to_CuM * CuY_to_CuM_conversion
+                    print(f"Conversion complete! Slab Volume in Cu. M is: {slab_volume:.2f} Cu. M")
+                    break
+                else:
+                    print("Invalid input. Volume must be non-negative.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+        elif units_from_revit == 'n':
+            try:
+                slab_volume = float(input("\nEnter Slab Volume (Cu. M): "))
                 if 0 <= slab_volume:
                     break
                 else:
-                    print("Invalid input. Elevation must be within the range.")
+                    print("Invalid input. Volume must be non-negative.")
             except ValueError:
                 print("Invalid input. Please enter a valid number.")
-    
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+
     # Calculate cut and fill volumes
     cut_volume = 0
     fill_volume = 0
@@ -185,14 +199,24 @@ def estimate_excavation_cost(soil_data):
         elif elevation > base_elevation:
             cut_volume += (elevation - base_elevation) * conversion_factor
 
+    # Check if fill_volume is less than cut_volume and set fill_volume to 0
+    if fill_volume < cut_volume:
+        new_fill_volume = 0
+        
     # Calculate final volumes
     total_cut_volume = cut_volume
-    total_fill_volume = fill_volume - (footing_volume + slab_volume)
+    total_fill_volume = max((new_fill_volume - (footing_volume + slab_volume)), 0)
 
-    # Print results
-    print("\nTotal Volumes for Project")
-    print(f"Cut  Soil Volumes: {total_cut_volume:.2f} Cu. M")
-    print(f"Fill Soil Volumes: {total_fill_volume:.2f} Cu. M")
+    # Print results as a table
+    results_table = [
+        ["Total Volumes for Project", "", ""],
+        ["Cut Soil Volumes", f"{total_cut_volume:.2f} Cu.M"],
+        ["Fill Soil Volumes", f"{total_fill_volume:.2f} Cu.M"],
+        ["Soil that can be Reused", f"{fill_volume:.2f} Cu.M"]
+    ]
+    # Specify numalign to center align numerical values
+    print("")
+    print(tabulate(results_table, headers="firstrow", tablefmt="grid", numalign="center"))
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
