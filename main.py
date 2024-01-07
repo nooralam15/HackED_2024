@@ -55,6 +55,7 @@ def menu():
         userInput = int(input("userInput (0-4)? "))
     return userInput
 
+#This function limits the csv soil data to fit the user criteria
 def soil_data_limit(soil_data):
     min_elevation, max_elevation = soil_data_min_max(soil_data)
     print("Minimum Elevation:", min_elevation)
