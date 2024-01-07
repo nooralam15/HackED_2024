@@ -200,6 +200,8 @@ def estimate_excavation_cost(soil_data):
     cut_volume = 0
     fill_volume = 0
 
+    new_fill_volume = fill_volume  # Initialize new_fill_volume
+
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
         if elevation < base_elevation:
@@ -213,12 +215,18 @@ def estimate_excavation_cost(soil_data):
         
     # Calculate final volumes
     total_cut_volume = cut_volume
-    total_fill_volume = fill_volume - (footing_volume + slab_volume)
+    total_fill_volume = max((new_fill_volume - (footing_volume + slab_volume)), 0)
 
-    # Print results
-    print("\nTotal Volumes for Project")
-    print(f"Cut  Soil Volumes: {total_cut_volume:.2f} Cu. M")
-    print(f"Fill Soil Volumes: {total_fill_volume:.2f} Cu. M")
+    # Print results as a table
+    results_table = [
+        ["Total Volumes for Project", "", ""],
+        ["Cut Soil Volumes", f"{total_cut_volume:.2f} Cu.M"],
+        ["Fill Soil Volumes", f"{total_fill_volume:.2f} Cu.M"],
+        ["Soil that can be Reused", f"{fill_volume:.2f} Cu.M"]
+    ]
+    # Specify numalign to center align numerical values
+    print("")
+    print(tabulate(results_table, headers="firstrow", tablefmt="grid", numalign="center"))
     
     #Processing Cost estimation using chatGPT
     gpt(total_cut_volume, total_fill_volume)
@@ -249,19 +257,6 @@ messages = [
     )
 
     print(response.choices[0].message.content)
-
-    total_fill_volume = max((new_fill_volume - (footing_volume + slab_volume)), 0)
-
-    # Print results as a table
-    results_table = [
-        ["Total Volumes for Project", "", ""],
-        ["Cut Soil Volumes", f"{total_cut_volume:.2f} Cu.M"],
-        ["Fill Soil Volumes", f"{total_fill_volume:.2f} Cu.M"],
-        ["Soil that can be Reused", f"{fill_volume:.2f} Cu.M"]
-    ]
-    # Specify numalign to center align numerical values
-    print("")
-    print(tabulate(results_table, headers="firstrow", tablefmt="grid", numalign="center"))
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
