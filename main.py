@@ -104,27 +104,20 @@ def display_soil_data(soil_data):
 #This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
     #Seperates data points into Northing, Easting, and Elevations
+    northing, easting, elevation = [], [], []
     for k in range(0, len(data)):
-        northing = data[k][0]
-        easting = data[k][1]
-        elevation = data[k][2]
+        northing.append(data[k][0])
+        easting.append(data[k][1])
+        elevation.append(data[k][2])
 
-    # Creating a meshgrid for the contour plot
-    x = np.array(northing)
-    y = np.array(easting)
-    X, Y = np.meshgrid(x, y)
-    Z = np.array(elevation).reshape(len(y), len(x))
-
-    # Plotting the contour map
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111, projection='3d')
-
-    ax.contour3D(X, Y, Z, 50, cmap='viridis')  # Adjust the number of contours as needed
-    ax.set_xlabel('Northing')
-    ax.set_ylabel('Easting')
-    ax.set_zlabel('Elevation')
-    ax.set_title('Contour Map')
-
+    # Creating a contour plot
+    plt.figure(figsize=(8, 6))
+    contour_plot = plt.tricontourf(northing, easting, elevation, levels=20, cmap='viridis')
+    plt.colorbar(contour_plot, label='Elevation')  # Add a colorbar for reference
+    plt.xlabel('Northing')
+    plt.ylabel('Easting')
+    plt.title('2D Contour Map')
+    plt.grid(True)
     plt.show()
 
 main()
