@@ -106,6 +106,46 @@ def display_soil_data(soil_data):
 
 # calculates the cut and fill needed for earthwork
 def estimate_excavation_cost(soil_data):
+    print("\nESTIMATE EXCAVATION COST\n")
+
+    # Get user input for elevation values
+    min_elevation, max_elevation = soil_data_min_max(soil_data)
+    print("Min Elevation:", min_elevation)
+    print("Max Elevation:", max_elevation)
+
+    while True:
+        try:
+            cut_elevation = float(input("Enter Cut Elevation: "))
+            if min_elevation <= cut_elevation <= max_elevation:
+                break
+            else:
+                print("Invalid input. Elevation must be within the range.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    while True:
+        try:
+            fill_elevation = float(input("Enter Fill Elevation: "))
+            if min_elevation <= fill_elevation <= max_elevation:
+                break
+            else:
+                print("Invalid input. Elevation must be within the range.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    # Calculate cut and fill volumes
+    cut_volume = 0
+    fill_volume = 0
+
+    for entry in soil_data:
+        elevation = entry[2]  # Assuming the third column represents elevation
+        if elevation < cut_elevation:
+            cut_volume += cut_elevation - elevation
+        elif elevation > fill_elevation:
+            fill_volume += elevation - fill_elevation
+
+    print("\nCut Volume:", cut_volume, "cubic meters")
+    print("Fill Volume:", fill_volume, "cubic meters")
 
 
 # This function will plot the csv soil data as a contour map
