@@ -109,8 +109,7 @@ def display_soil_data(soil_data):
         print("%-9.1f  %-9.1f  %-15.1f" % (northing, easting, elevation))
 
 # calculates the cut and fill needed for earthwork
-def estimate_excavation_cost(soil_data, base_elevation, base_foundation):
-    
+def estimate_excavation_cost(soil_data):
     # Get user input for elevation values
     min_elevation, max_elevation = soil_data_min_max(soil_data)
     print("Min Elevation:", min_elevation)
@@ -119,7 +118,7 @@ def estimate_excavation_cost(soil_data, base_elevation, base_foundation):
     while True:
         try:
             base_elevation = float(input("Enter Base Footing Elevation: "))
-            if min_elevation <= base_elevation and base_elevation <= max_elevation:
+            if min_elevation <= base_elevation <= max_elevation:
                 break
             else:
                 print("Invalid input. Elevation must be within the range.")
@@ -128,17 +127,22 @@ def estimate_excavation_cost(soil_data, base_elevation, base_foundation):
 
     # Calculate cut and fill volumes
     cut_volume = 0
-    fill_volume = 0 
+    fill_volume = 0
+    bedrock_volume = 0  # Placeholder, replace with actual bedrock volume calculation
+    footing_volume = 0  # Placeholder, replace with actual footing volume calculation
+    backfilling_volume = 0  # Placeholder, replace with actual backfilling volume calculation
+    slab_volume = 0  # Placeholder, replace with actual slab volume calculation
+
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
         if elevation < base_elevation:
-            cut_volume += base_elevation - elevation
+            fill_volume += base_elevation - elevation
         elif elevation > base_elevation:
-            fill_volume += elevation - base_elevation
+            cut_volume += elevation - base_elevation
 
     # Calculate final volumes
     total_cut_volume = cut_volume + bedrock_volume
-    total_fill_volume = backfilling_volume
+    total_fill_volume = backfilling_volume + slab_volume
 
     # Print results
     print("Total Volume - Version 1")
