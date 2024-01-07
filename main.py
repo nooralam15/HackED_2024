@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
 from keys import *
+import matplotlib.image as mpimg
 
 client = OpenAI(api_key = chatGPT_Key)
 
@@ -16,6 +17,10 @@ def main():
 
     #display information about the soil data
     #display_soil_info()
+
+    # Load and display the image
+    image_path = r"C:\Users\ikasa\Downloads\earth2build.png"
+    display_image(image_path)
 
     userInput = menu()
 
@@ -30,6 +35,13 @@ def main():
             plot_soil_profile(soil_data)
         userInput = menu()
 
+# Add this function to display the image
+def display_image(image_path):
+    img = mpimg.imread(image_path)
+    imgplot = plt.imshow(img)
+    plt.axis('off')  # Turn off axis labels and ticks
+    plt.show()
+
 #This function initializes the csv file for later use in future functions
 def load_soil_data_from_csv(file_path):
     # loads soil data from a csv file 
@@ -37,16 +49,12 @@ def load_soil_data_from_csv(file_path):
         soil_data = pd.read_csv(file_path)
         return soil_data.values.tolist()  # Convert DataFrame to Python list
     except FileNotFoundError:
-        print("")
-        print("Error: No soil data file was submitted.")
-        print("")
+        print("\nError: No soil data file was submitted.")
         return np.array([])
 
 #This function will create a menu that will loop through the code
 def menu():
-    print("")    
-    print("Welcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork")
-    print("")
+    print("\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork. \n")
     print("0. Exit Program")
     print("1. Maximum Elevation Limit")
     print("2. Updated Soil Data")
@@ -54,21 +62,21 @@ def menu():
     print("4. Plot Updated Soil Profile")
     print()
     
-    userInput = int(input("userInput (0-4)? "))
+    userInput = int(input("\nuserInput (0-4)? "))
     while not (0 <= userInput <=4):
-        userInput = int(input("userInput (0-4)? "))
+        userInput = int(input("\nuserInput (0-4)? "))
     return userInput
 
 #This function limits the csv soil data to fit the user criteria
 def soil_data_limit(soil_data):
     min_elevation, max_elevation = soil_data_min_max(soil_data)
-    print("Minimum Elevation:", min_elevation)
+    print("\nMinimum Elevation:", min_elevation)
     print("Maximum Elevation:", max_elevation)
 
     # Handle input for the limit value with proper error checking
     valid=True
     while valid:
-        limit_value_str = input("Maximum Elevation Limit? ")
+        limit_value_str = input("\nMaximum Elevation Limit? ")
         try:
             limit_value = float(limit_value_str)
             if min_elevation <= limit_value and limit_value <= max_elevation:
@@ -86,7 +94,6 @@ def soil_data_limit(soil_data):
             p = p + 1
 
     print("Soil data filtered based on Maximum Elevation Limit.")
-    print("")
     return soil_data
 
 def soil_data_min_max(soil_data):
@@ -112,47 +119,80 @@ def display_soil_data(soil_data):
 def estimate_excavation_cost(soil_data):
     # Get user input for elevation values
     min_elevation, max_elevation = soil_data_min_max(soil_data)
-    print("Min Elevation:", min_elevation)
+    print("\nMin Elevation:", min_elevation)
     print("Max Elevation:", max_elevation)
 
     while True:
         try:
-            base_elevation = float(input("Enter Base Footing Elevation: "))
+            base_elevation = float(input("\nEnter Base Footing Elevation(m): "))
             if min_elevation <= base_elevation <= max_elevation:
                 break
             else:
                 print("Invalid input. Elevation must be within the range.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
+    
+    # Conversion factor: Assuming each data point represents a square meter
+    conversion_factor = 1.2
 
+    while True:
+        units_from_revit = input("\nAre Footing Volume units from Revit in Yards? (y/n): ").lower()
+        if units_from_revit == 'y':
+            CuY_to_CuM = float(input("Enter Footing Volume: "))
+            print("Converting units from Yards to Meters...")
+            CuY_to_CuM_conversion = 0.764555
+            footing_volume = CuY_to_CuM * CuY_to_CuM_conversion
+            print(f"Conversion complete! Footing Volume in Cu. M is: {footing_volume:.2f} Cu. M")
+            break
+        else:  
+            try:
+                footing_volume = float(input("\nEnter Footing Volume (Cu. M): "))
+                if 0 <= footing_volume:
+                    break
+                else:
+                    print("Invalid input. Elevation must be within the range.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+    while True:
+        units_from_revit = input("\nAre Slab Volume units from Revit in Yards? (y/n): ").lower()
+        if units_from_revit == 'y':
+            CuY_to_CuM = float(input("Enter Slab Volume: "))
+            print("Converting units from Yards to Meters...")
+            CuY_to_CuM_conversion = 0.764555
+            slab_volume = CuY_to_CuM * CuY_to_CuM_conversion
+            print(f"\nConversion complete! Slab Volume in Cu. M is: {slab_volume:.2f} Cu. M \n")
+            break
+
+        else:  
+            try:
+                slab_volume = float(input("\nEnter Footing Volume (Cu. M): "))
+                if 0 <= slab_volume:
+                    break
+                else:
+                    print("Invalid input. Elevation must be within the range.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+    
     # Calculate cut and fill volumes
     cut_volume = 0
     fill_volume = 0
-    bedrock_volume = 0  # Placeholder, replace with actual bedrock volume calculation
-    footing_volume = 0  # Placeholder, replace with actual footing volume calculation
-    backfilling_volume = 0  # Placeholder, replace with actual backfilling volume calculation
-    slab_volume = 0  # Placeholder, replace with actual slab volume calculation
 
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
         if elevation < base_elevation:
-            fill_volume += base_elevation - elevation
+            fill_volume += (base_elevation - elevation) * conversion_factor
         elif elevation > base_elevation:
-            cut_volume += elevation - base_elevation
+            cut_volume += (elevation - base_elevation) * conversion_factor
 
     # Calculate final volumes
-    total_cut_volume = cut_volume + bedrock_volume
-    total_fill_volume = backfilling_volume + slab_volume
+    total_cut_volume = cut_volume
+    total_fill_volume = fill_volume - (footing_volume + slab_volume)
 
     # Print results
-    print("Total Volume - Version 1")
-    print(f"Cut (Excavation soil + rock): {total_cut_volume:.2f} Cu. M")
-    print(f"Bedrock Volume (cut): {bedrock_volume:.2f} Cu. M")
-    print(f"Soil Excavation: {cut_volume:.2f} Cu. M")
-    print(f"Footing Volume: {footing_volume:.2f} Cu. M")
-    print(f"Backfilling Post-Concrete: {backfilling_volume:.2f} Cu. M")
-    print(f"Slab Volume: {slab_volume:.2f} Cu. M")
-    print(f"Final Soil Volumes: {total_fill_volume:.2f} Cu. M")
+    print("\nTotal Volumes for Project")
+    print(f"Cut  Soil Volumes: {total_cut_volume:.2f} Cu. M")
+    print(f"Fill Soil Volumes: {total_fill_volume:.2f} Cu. M")
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
