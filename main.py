@@ -115,8 +115,8 @@ def estimate_excavation_cost(soil_data):
 
     while True:
         try:
-            base_elevation = float(input("Enter Base Elevation: "))
-            if min_elevation <= base_elevation <= max_elevation:
+            base_elevation = float(input("Enter Base Footing Elevation: "))
+            if min_elevation <= base_elevation and base_elevation <= max_elevation:
                 break
             else:
                 print("Invalid input. Elevation must be within the range.")
@@ -124,13 +124,14 @@ def estimate_excavation_cost(soil_data):
             print("Invalid input. Please enter a valid number.")
 
     # Calculate cut and fill volumes
-
+    cut_volume = 0
+    fill_volume = 0 
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
-        if elevation < cut_elevation:
-            cut_volume += cut_elevation - elevation
-        elif elevation > fill_elevation:
-            fill_volume += elevation - fill_elevation
+        if elevation < base_elevation:
+            cut_volume += base_elevation - elevation
+        elif elevation > base_elevation:
+            fill_volume += elevation - base_elevation
 
     print("\nCut Volume:", cut_volume, "cubic meters")
     print("Fill Volume:", fill_volume, "cubic meters")
