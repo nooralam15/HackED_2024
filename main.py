@@ -105,36 +105,48 @@ def display_soil_data(soil_data):
         print("%-9.1f  %-9.1f  %-15.1f" % (northing, easting, elevation))
 
 # calculates the cut and fill needed for earthwork
-def estimate_excavation_cost(soil_data):
-    print("\nESTIMATE EXCAVATION COST\n")
+def estimate_excavation_cost(soil_data, base_elevation, base_foundation):
+    # Constants
+    ROCK_CUT_FACTOR = 0.1  # Example factor for bedrock cut volume
+    CONCRETE_BACKFILL_FACTOR = 0.2  # Example factor for backfilling after concrete pour
 
-    # Get user input for elevation values
-    min_elevation, max_elevation = soil_data_min_max(soil_data)
-    print("Min Elevation:", min_elevation)
-    print("Max Elevation:", max_elevation)
+    # Initialize volumes
+    cut_volume = 0
+    bedrock_volume = 0
+    soil_excavation_volume = 0
+    footing_volume = 0
+    backfilling_volume = 0
+    slab_volume = 0
 
-    while True:
-        try:
-            base_elevation = float(input("Enter Base Elevation: "))
-            if min_elevation <= base_elevation <= max_elevation:
-                break
-            else:
-                print("Invalid input. Elevation must be within the range.")
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    # Calculate cut and fill volumes
-
+    # Example usage
+    base_elevation_input = float(input("Enter the base elevation: "))
+    base_foundation_input = float(input("Enter the base foundation: "))
+    estimate_excavation_cost(soil_data, base_elevation_input, base_foundation_input)
+    
+    # Calculate volumes based on soil_data
     for entry in soil_data:
-        elevation = entry[2]  # Assuming the third column represents elevation
-        if elevation < cut_elevation:
-            cut_volume += cut_elevation - elevation
-        elif elevation > fill_elevation:
-            fill_volume += elevation - fill_elevation
+        northing, easting, elevation = entry
+        if elevation < base_elevation:
+            # Below the base elevation, consider cut
+            cut_volume += base_elevation - elevation
+            bedrock_volume += ROCK_CUT_FACTOR * (base_elevation - elevation)
+        elif elevation > base_elevation:
+            # Above the base elevation, consider fill
+            backfilling_volume += CONCRETE_BACKFILL_FACTOR * (elevation - base_elevation)
 
-    print("\nCut Volume:", cut_volume, "cubic meters")
-    print("Fill Volume:", fill_volume, "cubic meters")
+    # Calculate final volumes
+    total_cut_volume = cut_volume + bedrock_volume
+    total_fill_volume = backfilling_volume
 
+    # Print results
+    print("Total Volume - Version 1")
+    print(f"Cut (Excavation soil + rock): {total_cut_volume:.2f} Cu. M")
+    print(f"Bedrock Volume (cut): {bedrock_volume:.2f} Cu. M")
+    print(f"Soil Excavation: {cut_volume:.2f} Cu. M")
+    print(f"Footing Volume: {footing_volume:.2f} Cu. M")
+    print(f"Backfilling Post-Concrete: {backfilling_volume:.2f} Cu. M")
+    print(f"Slab Volume: {slab_volume:.2f} Cu. M")
+    print(f"Final Soil Volumes: {total_fill_volume:.2f} Cu. M")
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
