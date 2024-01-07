@@ -24,6 +24,7 @@ def main():
             estimate_excavation_cost(soil_data)
         elif userInput == 4:
             plot_soil_profile(soil_data)
+        userInput = menu()
 
 #This function initializes the csv file for later use in future functions
 def load_soil_data_from_csv(file_path):
