@@ -263,6 +263,7 @@ messages = [
     print("")
     print(tabulate(results_table, headers="firstrow", tablefmt="grid", numalign="center"))
 
+
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
     # Seperates data points into Northing, Easting, and Elevations
