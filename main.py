@@ -40,11 +40,12 @@ def load_soil_data_from_csv(file_path):
 
 #This function will create a menu that will loop through the code
 def menu():
+    print("")    
     print("Welcome to Earth 2 Build, a premium cost and biddding estimation tool for Engineering EarthWork")
     print("")
     print("0. Exit Program")
-    print("1. Select Elevations for Excavation")
-    print("2. Selected Soil Data")
+    print("1. Base Elevation Limit Value")
+    print("2. Updated Soil Data")
     print("3. Estimate Excavation Cost")
     print("4. Plot Soil Profile")
     print()
@@ -63,8 +64,9 @@ def soil_data_limit(soil_data):
     # Handle input for the limit value with proper error checking
     valid=True
     while valid:
-        limit_value = float(input("Base Elevation Limit Value? "))
+        limit_value_str = input("Base Elevation Limit Value? ")
         try:
+            limit_value = float(limit_value_str)
             if min_elevation <= limit_value and limit_value <= max_elevation:
                 valid = False  # Exit the loop if a valid float is entered within the range
             else:
@@ -100,11 +102,11 @@ def display_soil_data(soil_data):
         easting = soil_data[k][1]
         elevation = soil_data[k][2]
         
-        print("%-7.1d  %-7.1d  %-6d" % (northing, easting, elevation))
+        print("%-9.1f  %-9.1f  %-15.1f" % (northing, easting, elevation))
 
-#This function will plot the csv soil data as a contour map
+# This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
-    #Seperates data points into Northing, Easting, and Elevations
+    # Seperates data points into Northing, Easting, and Elevations
     northing, easting, elevation = [], [], []
     for k in range(0, len(data)):
         northing.append(data[k][0])
