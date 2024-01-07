@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
 from keys import *
+import matplotlib.image as mpimg
 
 client = OpenAI(api_key = chatGPT_Key)
 
@@ -15,6 +16,7 @@ def main():
 
     #display information about the soil data
     #display_soil_info()
+    display_image("earth2build.png")
 
     userInput = menu()
 
@@ -29,6 +31,13 @@ def main():
             plot_soil_profile(soil_data)
         userInput = menu()
 
+# Add this function to display the image
+def display_image(image_path):
+    img = mpimg.imread(image_path)
+    imgplot = plt.imshow(img)
+    plt.axis('off')  # Turn off axis labels and ticks
+    plt.show()
+
 #This function initializes the csv file for later use in future functions
 def load_soil_data_from_csv(file_path):
     # loads soil data from a csv file 
@@ -36,16 +45,12 @@ def load_soil_data_from_csv(file_path):
         soil_data = pd.read_csv(file_path)
         return soil_data.values.tolist()  # Convert DataFrame to Python list
     except FileNotFoundError:
-        print("")
-        print("Error: No soil data file was submitted.")
-        print("")
+        print("\nError: No soil data file was submitted.")
         return np.array([])
 
 #This function will create a menu that will loop through the code
 def menu():
-    print("")    
-    print("Welcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork")
-    print("")
+    print("\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork. \n")
     print("0. Exit Program")
     print("1. Maximum Elevation Limit")
     print("2. Updated Soil Data")
@@ -53,21 +58,21 @@ def menu():
     print("4. Plot Updated Soil Profile")
     print()
     
-    userInput = int(input("userInput (0-4)? "))
+    userInput = int(input("\nuserInput (0-4)? "))
     while not (0 <= userInput <=4):
-        userInput = int(input("userInput (0-4)? "))
+        userInput = int(input("\nuserInput (0-4)? "))
     return userInput
 
 #This function limits the csv soil data to fit the user criteria
 def soil_data_limit(soil_data):
     min_elevation, max_elevation = soil_data_min_max(soil_data)
-    print("Minimum Elevation:", min_elevation)
+    print("\nMinimum Elevation:", min_elevation)
     print("Maximum Elevation:", max_elevation)
 
     # Handle input for the limit value with proper error checking
     valid=True
     while valid:
-        limit_value_str = input("Maximum Elevation Limit? ")
+        limit_value_str = input("\nMaximum Elevation Limit? ")
         try:
             limit_value = float(limit_value_str)
             if min_elevation <= limit_value and limit_value <= max_elevation:
@@ -85,15 +90,18 @@ def soil_data_limit(soil_data):
             p = p + 1
 
     print("Soil data filtered based on Maximum Elevation Limit.")
-    print("")
     return soil_data
 
+
+#This function returns the max and min values of the CSV file
 def soil_data_min_max(soil_data):
     elevations = [entry[2] for entry in soil_data]  # Assuming the third column represents elevation
     min_elevation = min(elevations)
     max_elevation = max(elevations)
     return min_elevation, max_elevation
 
+
+#This function displays the soil data to the user
 def display_soil_data(soil_data):
     print("")
     print("SOIL DATA:")
@@ -109,36 +117,112 @@ def display_soil_data(soil_data):
 
 # calculates the cut and fill needed for earthwork
 def estimate_excavation_cost(soil_data):
-    print("\nESTIMATE EXCAVATION COST\n")
-
     # Get user input for elevation values
     min_elevation, max_elevation = soil_data_min_max(soil_data)
-    print("Min Elevation:", min_elevation)
+    print("\nMin Elevation:", min_elevation)
     print("Max Elevation:", max_elevation)
 
     while True:
         try:
-            base_elevation = float(input("Enter Base Footing Elevation: "))
-            if min_elevation <= base_elevation and base_elevation <= max_elevation:
+            base_elevation = float(input("\nEnter Base Footing Elevation(m): "))
+            if min_elevation <= base_elevation <= max_elevation:
                 break
             else:
                 print("Invalid input. Elevation must be within the range.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
+    
+    # Conversion factor: Assuming each data point represents a square meter
+    conversion_factor = 1.2
 
+    while True:
+        units_from_revit = input("\nAre Footing Volume units from Revit in Yards? (y/n): ").lower()
+        if units_from_revit == 'y':
+            CuY_to_CuM = float(input("Enter Footing Volume: "))
+            print("Converting units from Yards to Meters...")
+            CuY_to_CuM_conversion = 0.764555
+            footing_volume = CuY_to_CuM * CuY_to_CuM_conversion
+            print(f"Conversion complete! Footing Volume in Cu. M is: {footing_volume:.2f} Cu. M")
+            break
+        else:  
+            try:
+                footing_volume = float(input("\nEnter Footing Volume (Cu. M): "))
+                if 0 <= footing_volume:
+                    break
+                else:
+                    print("Invalid input. Elevation must be within the range.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+    while True:
+        units_from_revit = input("\nAre Slab Volume units from Revit in Yards? (y/n): ").lower()
+        if units_from_revit == 'y':
+            CuY_to_CuM = float(input("Enter Slab Volume: "))
+            print("Converting units from Yards to Meters...")
+            CuY_to_CuM_conversion = 0.764555
+            slab_volume = CuY_to_CuM * CuY_to_CuM_conversion
+            print(f"\nConversion complete! Slab Volume in Cu. M is: {slab_volume:.2f} Cu. M \n")
+            break
+
+        else:  
+            try:
+                slab_volume = float(input("\nEnter Footing Volume (Cu. M): "))
+                if 0 <= slab_volume:
+                    break
+                else:
+                    print("Invalid input. Elevation must be within the range.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+    
     # Calculate cut and fill volumes
     cut_volume = 0
-    fill_volume = 0 
+    fill_volume = 0
+
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
         if elevation < base_elevation:
-            cut_volume += base_elevation - elevation
+            fill_volume += (base_elevation - elevation) * conversion_factor
         elif elevation > base_elevation:
-            fill_volume += elevation - base_elevation
+            cut_volume += (elevation - base_elevation) * conversion_factor
 
-    print("\nCut Volume:", cut_volume, "cubic meters")
-    print("Fill Volume:", fill_volume, "cubic meters")
+    # Calculate final volumes
+    total_cut_volume = cut_volume
+    total_fill_volume = fill_volume - (footing_volume + slab_volume)
 
+    # Print results
+    print("\nTotal Volumes for Project")
+    print(f"Cut  Soil Volumes: {total_cut_volume:.2f} Cu. M")
+    print(f"Fill Soil Volumes: {total_fill_volume:.2f} Cu. M")
+    
+    #Processing Cost estimation using chatGPT
+    gpt(total_cut_volume, total_fill_volume)
+
+
+def gpt(cut_volume, fill_volume):
+    location = input("Please provide location of project: ")
+    time_of_year = input("Please provide the time of year (Month/Season/All year) of project:  ")
+    response = client.chat.completions.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2,
+max_tokens = 1000,
+messages = [
+    {"role": "user", "content": "Assume that you are a construction company that has been assigned with the task of cutting and filling soil. Your job is to provide an estimate for the construction costs. We are cutting soil of" + str(cut_volume) + "cubic meters and that we are filling" + str(fill_volume) + ". Also, the project will takr place in" + location + " and will occur during" + time_of_year + "I want you to provide a construction cost estimate for labour, and please provide a raw number. Make sure you include everything, from labour costs, equipment rentals etc. Use an estimated cost based on average rates in the location provided. Provide a RAW number"}
+    ]
+    )
+
+    print(response.choices[0].message.content)
+    edit_Response = response.choices[0].message.content
+    
+    response = client.chat.completions.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2,
+max_tokens = 1000,
+messages = [
+    {"role": "user", "content": "I want you to take the response given in" + edit_Response + "And I only want you to extract the numbers. Do NOT explain anything. Do not even respond to this. Just provide a short header, and the costs"}
+    ]
+    )
+
+    print(response.choices[0].message.content)
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
