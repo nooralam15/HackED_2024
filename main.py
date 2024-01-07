@@ -115,18 +115,8 @@ def estimate_excavation_cost(soil_data):
 
     while True:
         try:
-            cut_elevation = float(input("Enter Cut Elevation: "))
-            if min_elevation <= cut_elevation <= max_elevation:
-                break
-            else:
-                print("Invalid input. Elevation must be within the range.")
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    while True:
-        try:
-            fill_elevation = float(input("Enter Fill Elevation: "))
-            if min_elevation <= fill_elevation <= max_elevation:
+            base_elevation = float(input("Enter Base Elevation: "))
+            if min_elevation <= base_elevation <= max_elevation:
                 break
             else:
                 print("Invalid input. Elevation must be within the range.")
@@ -134,8 +124,6 @@ def estimate_excavation_cost(soil_data):
             print("Invalid input. Please enter a valid number.")
 
     # Calculate cut and fill volumes
-    cut_volume = 0
-    fill_volume = 0
 
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
@@ -167,7 +155,4 @@ def plot_soil_profile(data):
     plt.grid(True)
     plt.show()
 
-#This function will estimate excavation costs
-def estimate_excavation_cost(data):
-    print("HI")
 main()
