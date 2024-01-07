@@ -15,12 +15,7 @@ def main():
     #load soil data from CSV file
     soil_data = load_soil_data_from_csv("soil_data.csv")
 
-<<<<<<< HEAD
-    #display information about the soil data
-    #display_soil_info()
-=======
-    # Load and display the image
->>>>>>> a9cf146e0f34b4db3dc43f54f42fd58094327fb4
+# Display loading image
     display_image("earth2build.png")
 
     print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
@@ -200,6 +195,8 @@ def estimate_excavation_cost(soil_data):
     cut_volume = 0
     fill_volume = 0
 
+    new_fill_volume = fill_volume  # Initialize new_fill_volume
+
     for entry in soil_data:
         elevation = entry[2]  # Assuming the third column represents elevation
         if elevation < base_elevation:
@@ -213,43 +210,6 @@ def estimate_excavation_cost(soil_data):
         
     # Calculate final volumes
     total_cut_volume = cut_volume
-    total_fill_volume = fill_volume - (footing_volume + slab_volume)
-
-    # Print results
-    print("\nTotal Volumes for Project")
-    print(f"Cut  Soil Volumes: {total_cut_volume:.2f} Cu. M")
-    print(f"Fill Soil Volumes: {total_fill_volume:.2f} Cu. M")
-    
-    #Processing Cost estimation using chatGPT
-    gpt(total_cut_volume, total_fill_volume)
-
-
-def gpt(cut_volume, fill_volume):
-    location = input("Please provide location of project: ")
-    time_of_year = input("Please provide the time of year (Month/Season/All year) of project:  ")
-    response = client.chat.completions.create(
-model = "gpt-3.5-turbo",
-temperature = 0.2,
-max_tokens = 1000,
-messages = [
-    {"role": "user", "content": "Assume that you are a construction company that has been assigned with the task of cutting and filling soil. Your job is to provide an estimate for the construction costs. We are cutting soil of" + str(cut_volume) + "cubic meters and that we are filling" + str(fill_volume) + ". Also, the project will takr place in" + location + " and will occur during" + time_of_year + "I want you to provide a construction cost estimate for labour, and please provide a raw number. Make sure you include everything, from labour costs, equipment rentals etc. Use an estimated cost based on average rates in the location provided. Provide a RAW number"}
-    ]
-    )
-
-    print(response.choices[0].message.content)
-    edit_Response = response.choices[0].message.content
-    
-    response = client.chat.completions.create(
-model = "gpt-3.5-turbo",
-temperature = 0.2,
-max_tokens = 1000,
-messages = [
-    {"role": "user", "content": "I want you to take the response given in" + edit_Response + "And I only want you to extract the numbers. Do NOT explain anything. Do not even respond to this. Just provide a short header, and the costs"}
-    ]
-    )
-
-    print(response.choices[0].message.content)
-
     total_fill_volume = max((new_fill_volume - (footing_volume + slab_volume)), 0)
 
     # Print results as a table
@@ -262,7 +222,36 @@ messages = [
     # Specify numalign to center align numerical values
     print("")
     print(tabulate(results_table, headers="firstrow", tablefmt="grid", numalign="center"))
+    
+    #Processing Cost estimation using chatGPT
+    gpt(total_cut_volume, total_fill_volume)
 
+
+def gpt(cut_volume, fill_volume):
+    location = input("Please provide location of project: ")
+    time_of_year = input("Please provide the time of year (Month/Season/All year) of project:  ")
+    project_length = input("Please provide an estimated project time length (hours/days/months/week): ")
+    response = client.chat.completions.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2,
+max_tokens = 1000,
+messages = [
+    {"role": "system", "content": "Assume that you are a construction company that has been assigned with the task of cutting and filling soil. Your job is to provide an estimate for the construction costs. We are cutting soil of" + str(cut_volume) + "cubic meters and that we are filling" + str(fill_volume) + ". Also, the project will takr place in" + location + " and will occur during" + time_of_year + " and will take" + project_length + "I want you to provide a construction cost estimate for the project and please provide a raw number. Make sure you include everything, from labour costs, equipment rentals (Dump trucks,) etc. Use an estimated cost based on average rates in the location provided. Give us an actual number based on average data. Nothing specific"}
+    ]
+    )
+
+    edit_Response = response.choices[0].message.content
+    
+    response = client.chat.completions.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2,
+max_tokens = 1000,
+messages = [
+    {"role": "user", "content": "I want you to take the response given in" + edit_Response + "And I only want you to extract the numbers. Do NOT explain anything. Just provide a short header, and the costs in an organized table." }
+    ]
+    )
+    print("")
+    print(response.choices[0].message.content)
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
