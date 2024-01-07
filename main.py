@@ -5,7 +5,6 @@ from openai import OpenAI
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
-from mpl_toolkits.mplot3d import Axes3D
 from keys import *
 
 client = OpenAI(api_key = chatGPT_Key)
