@@ -109,6 +109,7 @@ def plot_soil_profile(data):
         easting.append(data[k][1])
         elevation.append(data[k][2])
 
+    # Creating a contour plot
     plt.figure(figsize=(8, 6))
     contour_plot = plt.tricontourf(northing, easting, elevation, levels=20, cmap='viridis')
     plt.colorbar(contour_plot, label='Elevation')  # Add a colorbar for reference
@@ -117,6 +118,5 @@ def plot_soil_profile(data):
     plt.title('2D Contour Map')
     plt.grid(True)
     plt.show()
-
 
 main()
