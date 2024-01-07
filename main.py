@@ -14,8 +14,6 @@ client = OpenAI(api_key = chatGPT_Key)
 def main():
     #load soil data from CSV file
     soil_data = load_soil_data_from_csv("soil_data.csv")
-
-# Display loading image
     display_image("earth2build.png")
 
     print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
@@ -51,18 +49,27 @@ def load_soil_data_from_csv(file_path):
 
 #This function will create a menu that will loop through the code
 def menu():
-    print("\nMAIN MENU")
-    print("0. Exit Program")
-    print("1. Maximum Elevation Limit")
-    print("2. Updated Soil Data")
-    print("3. Estimate Excavation Cost")
-    print("4. Plot Updated Soil Profile")
-    print()
-    
-    userInput = int(input("\nuserInput (0-4)? "))
-    while not (0 <= userInput <=4):
-        userInput = int(input("\nuserInput (0-4)? "))
-    return userInput
+    while True:
+        print("\nMAIN MENU")
+        print("0. Exit Program")
+        print("1. Maximum Elevation Limit")
+        print("2. Updated Soil Data")
+        print("3. Estimate Excavation Cost")
+        print("4. Plot Updated Soil Profile")
+        print()
+
+# checks if the entered float value is between 0 and 4 (inclusive) and then checks if it's an integer using userInput.is_integer(). 
+# If both conditions are true, the float value is converted to an integer (int(userInput)) and returned from the function. If any of 
+# these conditions is false, an error message is printed, and the user is prompted again.
+        
+        try:
+            userInput = float(input("\nuserInput (0-4)? "))
+            if 0 <= userInput <= 4 and userInput.is_integer():
+                return int(userInput)
+            else:
+                print("Invalid input. Please enter an integer between 0 and 4.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
 
 #This function limits the csv soil data to fit the user criteria
 def soil_data_limit(soil_data):
@@ -125,7 +132,7 @@ def estimate_excavation_cost(soil_data):
 
     while True:
         try:
-            base_elevation = float(input("\nEnter Base Foundation Elevation(m): "))
+            base_elevation = float(input("\nEnter Base Foundation Elevation (m): "))
             if min_elevation <= base_elevation <= max_elevation:
                 break
             else:
@@ -207,17 +214,21 @@ def estimate_excavation_cost(soil_data):
     # Check if fill_volume is less than cut_volume and set fill_volume to 0
     if fill_volume < cut_volume:
         new_fill_volume = 0
-        
+
+    # If fill_volume is greater than cut_volume, set new_fill_volume
+    if fill_volume > cut_volume:
+        new_fill_volume = fill_volume
+
     # Calculate final volumes
     total_cut_volume = cut_volume
     total_fill_volume = max((new_fill_volume - (footing_volume + slab_volume)), 0)
 
     # Print results as a table
     results_table = [
-        ["Total Volumes for Project", "", ""],
-        ["Cut Soil Volumes", f"{total_cut_volume:.2f} Cu.M"],
-        ["Fill Soil Volumes", f"{total_fill_volume:.2f} Cu.M"],
-        ["Soil that can be Reused", f"{fill_volume:.2f} Cu.M"]
+        ["Total Volumes for Project", ""],
+        ["Soil Cut Volumes", f"{total_cut_volume:.2f} Cu.M"],
+        ["Soil Fill Volumes", f"{total_fill_volume:.2f} Cu.M"],
+        ["Soil Needed", f"{max((fill_volume - cut_volume), 0):.2f} Cu.M"]
     ]
     # Specify numalign to center align numerical values
     print("")
@@ -228,7 +239,7 @@ def estimate_excavation_cost(soil_data):
 
 
 def gpt(cut_volume, fill_volume):
-    location = input("Please provide location of project: ")
+    location = input("\nPlease provide location of project (FORMAT: City, Province/State, Country): ")
     time_of_year = input("Please provide the time of year (Month/Season/All year) of project:  ")
     project_length = input("Please provide an estimated project time length (hours/days/months/week): ")
     response = client.chat.completions.create(
