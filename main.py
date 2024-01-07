@@ -38,6 +38,7 @@ print(formatted_text)
 def main():
     # Load and display the image
     display_image("earth2build.png")
+    
     print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
     while True:
         # Get user input for soil data file
@@ -287,42 +288,31 @@ def estimate_excavation_cost(soil_data):
 
 def gpt(cut_volume, fill_volume):
     print("\n **ESTIMATE COSTS BREAKDOWN**")
-    location = input("Please provide location of project (FORMAT: City, Province/State, Country): ")
-    time_of_year = input("Please provide the time of year (Month/Season/All year) of project: ")
+    location = input("\nPlease provide location of project (FORMAT: City, Province/State, Country): ")
+    time_of_year = input("Please provide the time of year (Month/Season/All year) of project:  ")
+    project_length = input("Please provide an estimated project time length (hours/days/months/week): ")
+    response = client.chat.completions.create(
+model = "gpt-3.5-turbo",
+temperature = 0.2,
+max_tokens = 1000,
+messages = [
+    {"role": "system", "content": "Assume that you are a construction company that has been assigned with the task of cutting and filling soil. Your job is to provide an estimate for the construction costs. We are cutting soil of" + str(cut_volume) + "cubic meters and that we are filling" + str(fill_volume) + ". Also, the project will takr place in" + location + " and will occur during" + time_of_year + " and will take" + project_length + "I want you to provide a construction cost estimate for the project and please provide a raw number. Make sure you include everything, from labour costs, equipment rentals (Dump trucks,) etc. Use an estimated cost based on average rates in the location provided. Give us an actual number based on average data. Nothing specific"}
+    ]
+    )
+
+    edit_Response = response.choices[0].message.content
     
     # First API call
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        temperature=0.2,
-        max_tokens=1000,
-        messages=[
-            {
-                "role": "user",
-                "content": f"Assume that you are a construction company tasked with cutting and filling soil. You need to provide an estimate for construction costs. The project involves cutting {cut_volume} cubic meters and filling {fill_volume} cubic meters of soil. The project will use {soil_type} in {location} and will occur during {time_of_year}. Use {soil_needed} to see if soil is needed. Provide a construction cost estimate for labour, equipment, and soil. Use average rates in the location. Provide a RAW number.",
-            }
-        ],
+model = "gpt-3.5-turbo",
+temperature = 0.2,
+max_tokens = 1000,
+messages = [
+    {"role": "user", "content": "I want you to take the response given in" + edit_Response + "And I only want you to extract the numbers. Do NOT explain anything. Just provide a short header, and the costs in an organized table." }
+    ]
     )
-
-    # Extract the response from the first API call
-    edit_response = response.choices[0].message.content
-
-    # Second API call to extract specific information
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        temperature=0.2,
-        max_tokens=1000,
-        messages=[
-            {
-                "role": "user",
-                "content": f"I want you to take the response given in {edit_response} and only provide a short header, and the costs in an organized table. Do NOT explain anything. Do NOT even respond to this.",
-            }
-        ],
-    )
-
+    print("")
     print(response.choices[0].message.content)
-
-#                "content": f"I want you to take the response given in {edit_response} and only provide a short header, and the costs in an organized table. Do NOT explain anything. Do NOT even respond to this.",
-
 
 # This function will plot the csv soil data as a contour map
 def plot_soil_profile(data):
