@@ -15,12 +15,7 @@ def main():
     #load soil data from CSV file
     soil_data = load_soil_data_from_csv("soil_data.csv")
 
-<<<<<<< HEAD
-    #display information about the soil data
-    #display_soil_info()
-=======
     # Load and display the image
->>>>>>> a9cf146e0f34b4db3dc43f54f42fd58094327fb4
     display_image("earth2build.png")
 
     print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
@@ -233,8 +228,8 @@ def estimate_excavation_cost(soil_data):
 
 
 def gpt(cut_volume, fill_volume):
-    location = input("Please provide location of project: ")
-    time_of_year = input("Please provide the time of year (Month/Season/All year) of project:  ")
+    location = input("\nPlease provide location of project: ")
+    time_of_year = input("\nPlease provide the time of year (Month/Season/All year) of project:  ")
     response = client.chat.completions.create(
 model = "gpt-3.5-turbo",
 temperature = 0.2,
