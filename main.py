@@ -42,7 +42,7 @@ def main():
     print("\n\nWelcome to Earth-2-Build, a premium cost and bidding estimation tool for Civil Engineering Earthwork! \n")
     while True:
         # Get user input for soil data file
-        soil_data_file_path = input("\nEnter the path to your soil data file (CSV): ")
+        soil_data_file_path = input("\nEnter the path to your soil data file (type: filename.csv): ")
         try:
             # Load soil data from user-provided CSV file
             soil_data = load_soil_data_from_csv(soil_data_file_path)
